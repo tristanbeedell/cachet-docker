@@ -69,8 +69,9 @@ RUN touch /var/run/nginx.pid && \
 
 RUN chown -R www-data:root /etc/php7/php-fpm.d
 
-RUN mkdir -p /var/www/html && \
-    mkdir -p /usr/share/nginx/cache && \
+COPY Cachet /var/www/html
+RUN mkdir -p /var/www && \
+		mkdir -p /usr/share/nginx/cache && \
     mkdir -p /var/cache/nginx && \
     mkdir -p /var/lib/nginx && \
     chown -R www-data:root /var/www /usr/share/nginx/cache /var/cache/nginx /var/lib/nginx/
@@ -82,13 +83,11 @@ RUN wget https://getcomposer.org/installer -O /tmp/composer-setup.php && \
     php /tmp/composer-setup.php --version=$COMPOSER_VERSION --install-dir=bin && \
     php -r "unlink('/tmp/composer-setup.php');"
 
+
 WORKDIR /var/www/html/
 USER 1001
 
-RUN wget ${archive_url} && \
-    tar xzf ${cachet_ver}.tar.gz --strip-components=1 && \
-    chown -R www-data:root /var/www/html && \
-    rm -r ${cachet_ver}.tar.gz && \
+RUN chown -R www-data:root /var/www/html && \
     php /bin/composer.phar global require "hirak/prestissimo:^0.3" && \
     php /bin/composer.phar install -o && \
     rm -rf bootstrap/cache/*

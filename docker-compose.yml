@@ -3,17 +3,19 @@ version: "3"
 services:
   postgres:
     image: postgres:12-alpine
-    volumes:
-      - /var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    volumes:
+      - test-cachet-db:/var/lib/postgresql/data
     restart: always
   cachet:
     build:
       context: .
       args:
         - cachet_ver=2.4
+    volumes:
+      - ./Cachet:/var/www/html
     ports:
       - 80:8000
     links:
@@ -28,9 +30,20 @@ services:
       - DB_PREFIX=chq_
       - APP_KEY=${APP_KEY:-null}
       - APP_LOG=errorlog
-      - APP_ENV=${APP_ENV:-production}
-      - APP_DEBUG=false
-      - DEBUG=false
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DEBUG=true
+      # - MAIL_DRIVER=
+      # - MAIL_HOST=
+      # - MAIL_PORT=
+      # - MAIL_USERNAME=
+      # - MAIL_PASSWORD=
+      # - MAIL_ADDRESS=
+      # - MAIL_NAME=
+      # - MAIL_ENCRYPTION=
     depends_on:
       - postgres
     restart: on-failure
+volumes:
+  test-cachet-db:
+    driver: local
